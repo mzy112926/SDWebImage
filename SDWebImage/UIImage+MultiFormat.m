@@ -35,6 +35,10 @@
 #endif
     else {
         image = [[UIImage alloc] initWithData:data];
+        if(data.length/1024 > 1024)
+        {
+            image = [self cropImage:image];
+        }
         UIImageOrientation orientation = [self sd_imageOrientationFromImageData:data];
         if (orientation != UIImageOrientationUp) {
             image = [UIImage imageWithCGImage:image.CGImage
@@ -47,6 +51,21 @@
     return image;
 }
 
++ (UIImage *)cropImage:(UIImage *)image
+{
+    UIImage *cropedImage = nil;
+    CGSize size = image.size;
+    CGFloat maxLength = MAX(size.width, size.height);
+    CGFloat scale = 200.0f/maxLength;
+    
+    CGSize newSize = CGSizeMake(scale *size.width, scale *size.height);
+    UIGraphicsBeginImageContext(newSize);
+    [image drawInRect:CGRectMake(0, 0, newSize.width,newSize.height)];
+    cropedImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return cropedImage;
+}
 
 +(UIImageOrientation)sd_imageOrientationFromImageData:(NSData *)imageData {
     UIImageOrientation result = UIImageOrientationUp;
